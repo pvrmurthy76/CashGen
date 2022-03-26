@@ -107,7 +107,7 @@ namespace CashGen
         {
             if (!new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
                 return (IActionResult)new BadRequestResult();
-            // ISSUE: object of a compiler-generated type is created
+            /*// ISSUE: object of a compiler-generated type is created
             // ISSUE: variable of a compiler-generated type
             ProductsHttpTrigger.\u003C\u003Ec__DisplayClass6_0 cDisplayClass60 = new ProductsHttpTrigger.\u003C\u003Ec__DisplayClass6_0();
             ProductCheckDto check = new ProductCheckDto();
@@ -154,16 +154,17 @@ namespace CashGen
                 EventType = "API Request",
                 Area = nameof(CheckProduct),
                 Message = "Request: " + endAsync + " - Result: " + JsonConvert.SerializeObject((object)check)
-            });
+            });*/
             this._cashGenRepository.Save();
-            return (IActionResult)new OkObjectResult((object)check);
+            // return (IActionResult)new OkObjectResult((object)check);
+            return (IActionResult)new OkObjectResult((object)new List<string>());
         }
 
         [FunctionName("LookupResults")]
         public IActionResult LookupResults([HttpTrigger] HttpRequest req, ILogger log)
         {
-            string str1 = StringValues.op_Implicit(req.Query["keyword"]);
-            string str2 = "f6be2782b4529a15bd6de79e47e8466cd35d0be825bbd313b6c3dfffe25b2c4c";
+            string str1 = req.Query["keyword"];
+            string apiKey = "f6be2782b4529a15bd6de79e47e8466cd35d0be825bbd313b6c3dfffe25b2c4c";
             Hashtable hashtable = new Hashtable();
             hashtable.Add((object)"engine", (object)"google");
             hashtable.Add((object)"q", (object)str1);
@@ -174,9 +175,9 @@ namespace CashGen
             hashtable.Add((object)"tbm", (object)"shop");
             try
             {
-                return (IActionResult)new OkObjectResult((object)((SerpApiClient)new GoogleSearchResultsClient(hashtable, str2)).GetJson()["shopping_results"]);
+                return (IActionResult)new OkObjectResult((object)(new GoogleSearch(hashtable, apiKey)).GetJson()["shopping_results"]);
             }
-            catch (SerpApiClientException ex)
+            catch (SerpApiSearchException ex)
             {
                 return (IActionResult)new OkObjectResult((object)new List<string>());
             }
@@ -195,9 +196,9 @@ namespace CashGen
             hashtable.Add((object)"hl", (object)"en");
             try
             {
-                return (IActionResult)new OkObjectResult((object)((SerpApiClient)new GoogleSearchResultsClient(hashtable, str)).GetJson());
+                return (IActionResult)new OkObjectResult((object)(new GoogleSearch(hashtable, str)).GetJson());
             }
-            catch (SerpApiClientException ex)
+            catch (SerpApiSearchException ex)
             {
                 return (IActionResult)new OkObjectResult((object)((object)ex).ToString());
             }
