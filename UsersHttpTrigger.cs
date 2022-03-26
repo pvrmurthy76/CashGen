@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Newtonsoft.Json;  
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +40,8 @@ namespace CashGen
             bool flag = false;
             if (new CashGen.Shared.Generic().isValidGuid(token))
             {
-                if (((IQueryable<User>)this._context.Users).Where<User>((Expression<Func<User, bool>>)(c => c.Id == new Guid(token))).Count<User>() > 0)
+                IQueryable<User> user = this._context.Users.Where<User>(authUser => authUser.Id == new Guid(token));
+                if(user != null && user.Count()>0)
                     flag = true;
             }
             if (flag)
@@ -52,11 +53,23 @@ namespace CashGen
         }
 
         [FunctionName("GetUsers")]
-        public IActionResult GetUsers([HttpTrigger] HttpRequest req, ILogger log) => this.authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid ? (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<UserListDto>>((object)(IEnumerable<User>)this._context.Users)) : (IActionResult)new BadRequestResult();
+        public IActionResult GetUsers([HttpTrigger] HttpRequest req, ILogger log)
+        {
+            if (!this.authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
+                return (IActionResult)new BadRequestResult();
+            return (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<UserListDto>>((object)(IEnumerable<User>)this._context.Users));
+
+        }
 
         [FunctionName("GetUser")]
-        public IActionResult GetUser([HttpTrigger] HttpRequest req, Guid id, ILogger log) => this.authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid ? (IActionResult)new OkObjectResult((object)this._mapper.Map<UserDto>((object)this._cashGenRepository.GetUser(id))) : (IActionResult)new BadRequestResult();
+        public IActionResult GetUser([HttpTrigger] HttpRequest req, Guid id, ILogger log)
+        {
+            if (!this.authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
+                return (IActionResult)new BadRequestResult();
+            return (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<UserDto>>((object)(IEnumerable<User>)this._cashGenRepository.GetUser(id)));
 
+        }
+       
         [FunctionName("GetUserLogin")]
         public async Task<IActionResult> GetUserLogin([HttpTrigger] HttpRequest req, ILogger log)
         {
@@ -188,6 +201,12 @@ namespace CashGen
         }
 
         [FunctionName("GetUserStores")]
-        public IActionResult GetUserStores([HttpTrigger] HttpRequest req, Guid id, ILogger log) => this.authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid ? (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<StoreListDto>>((object)this._cashGenRepository.GetUserStores(id))) : (IActionResult)new BadRequestResult();
+        public IActionResult GetUserStores([HttpTrigger] HttpRequest req, Guid id, ILogger log)
+        {
+            if (!this.authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
+                return (IActionResult)new BadRequestResult();
+            return (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<StoreListDto>>((object)this._cashGenRepository.GetUserStores(id)));
+
+        }
     }
 }

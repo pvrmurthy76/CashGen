@@ -27,7 +27,7 @@ namespace CashGen
         [FunctionName("DeleteProduct")]
         public IActionResult DeleteProduct([HttpTrigger] HttpRequest req, Guid id, ILogger log)
         {
-            LoggerExtensions.LogInformation(log, "C# HTTP trigger function processed a request.", Array.Empty<object>());
+            log.LogInformation("C# HTTP trigger function processed a request.", Array.Empty<object>());
             string str = "";
             if (!string.IsNullOrEmpty(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()))
                 str = ((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>();

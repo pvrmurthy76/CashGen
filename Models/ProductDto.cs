@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CashGen.Entities;
+using System;
 using System.Collections.Generic;
 
 

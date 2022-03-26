@@ -34,10 +34,21 @@ namespace CashGen
         }
 
         [FunctionName("GetStores")]
-        public IActionResult GetStores([HttpTrigger] HttpRequest req, ILogger log) => new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid ? (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<StoreListDto>>((object)this._cashGenRepository.GetStores())) : (IActionResult)new BadRequestResult();
+        public IActionResult GetStores([HttpTrigger] HttpRequest req, ILogger log)
+        {
+            if (!new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
+                return (IActionResult)new BadRequestResult();
+            return (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<StoreListDto>>((object)(IEnumerable<Store>)this._context.Stores));
+        } 
 
         [FunctionName("GetStore")]
-        public IActionResult GetProduct([HttpTrigger] HttpRequest req, Guid id, ILogger log) => new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid ? (IActionResult)new OkObjectResult((object)this._mapper.Map<StoreDto>((object)this._cashGenRepository.GetStore(id))) : (IActionResult)new BadRequestResult();
+        public IActionResult GetProduct([HttpTrigger] HttpRequest req, Guid id, ILogger log)
+        {
+            if (!new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
+                return (IActionResult)new BadRequestResult();
+            return (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<StoreDto>>((object)(IEnumerable<Store>)this._cashGenRepository.GetStore(id)));
+
+        } 
 
         [FunctionName("CreateStore")]
         public async Task<IActionResult> CreateStore([HttpTrigger] HttpRequest req, ILogger log)

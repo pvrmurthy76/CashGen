@@ -60,15 +60,8 @@ namespace CashGen
                             shopify.RemoveProductFromCollection(shopifyCollect.ShopifyId);
                     }
                 }
-                Store store1 = new Store();
                 DbSet<Store> stores = this._context.Stores;
                 Store store = stores.Where<Store>(store1 => store1.Id.Equals(product.StoreId)).FirstOrDefault<Store>();
-                /*ParameterExpression parameterExpression = Expression.Parameter(typeof(Store), "c");
-                Expression<Func<Store, bool>> predicate = Expression.Lambda<Func<Store, bool>>((Expression)Expression.Equal((Expression)Expression.Property((Expression)parameterExpression, (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(Store.get_Id))), (Expression)Expression.Property((Expression)Expression.Field((Expression)Expression.Constant((object)cDisplayClass40, typeof(OnProductCreated.\u003C\u003Ec__DisplayClass4_0)), FieldInfo.GetFieldFromHandle(__fieldref(OnProductCreated.\u003C\u003Ec__DisplayClass4_0.productFromRepo))), (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(Product.get_StoreId))), false, (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(Guid.op_Equality))), new ParameterExpression[1]
-                {
-                     parameterExpression
-                });
-                Store store2 = ((IQueryable<Store>)stores).Where<Store>(predicate).FirstOrDefault<Store>();*/
                 shopifyProductRequest1.body_html += "<h2 class='listing-title'>Item Location</h2>";
                 if (productFromRepo.FulfilmentOption == "collection")
                     shopifyProductRequest1.body_html += "<p class='listing-location'>This item is available for <strong>Collection Only</strong> from:<br />";

@@ -107,57 +107,38 @@ namespace CashGen
         {
             if (!new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
                 return (IActionResult)new BadRequestResult();
-            /*// ISSUE: object of a compiler-generated type is created
-            // ISSUE: variable of a compiler-generated type
-            ProductsHttpTrigger.\u003C\u003Ec__DisplayClass6_0 cDisplayClass60 = new ProductsHttpTrigger.\u003C\u003Ec__DisplayClass6_0();
-            ProductCheckDto check = new ProductCheckDto();
-            string endAsync = await ((TextReader)new StreamReader(req.Body)).ReadToEndAsync();
-            // ISSUE: reference to a compiler-generated field
-            cDisplayClass60.product = JsonConvert.DeserializeObject<ProductForCheckDto>(endAsync);
-            // ISSUE: reference to a compiler-generated field
-            cDisplayClass60.productId = new Guid();
-            // ISSUE: reference to a compiler-generated field
-            if (!string.IsNullOrEmpty(cDisplayClass60.product.Id))
+            ProductCheckDto prodCheckDto = new ProductCheckDto();
+            Guid productId = new Guid();
+            String endAsync = await ((TextReader)new StreamReader(req.Body)).ReadToEndAsync();
+            Product product = this._mapper.Map<Product>((object)JsonConvert.DeserializeObject<ProductForCheckDto>(endAsync));
+            if(product.Id != Guid.Empty)
             {
-                // ISSUE: reference to a compiler-generated field
-                // ISSUE: reference to a compiler-generated field
-                cDisplayClass60.productId = new Guid(cDisplayClass60.product.Id);
+                productId = product.Id;
             }
             bool flag = true;
-            string str = string.Empty;
-            // ISSUE: reference to a compiler-generated field
-            if (flag && string.IsNullOrEmpty(cDisplayClass60.product.Barcode))
+            string error = string.Empty;
+            if(flag && string.IsNullOrEmpty(product.Barcode)){
+                flag = false;
+                error= "Please enter a unique Barcode.";
+            }
+            List<Product> products = ((IQueryable<Product>)this._context.Products).Where<Product>(prod => prod.Id == productId && prod.Barcode.Equals(product.Barcode)).ToList();
+            if(flag && products.Count > 0)
             {
                 flag = false;
-                str = "Please enter a unique Barcode.";
+                error = "Barcode in use. Please enter a unique Barcode.";
             }
-            List<Product> productList = new List<Product>();
-            ParameterExpression parameterExpression;
-            // ISSUE: reference to a compiler-generated field
-            // ISSUE: method reference
-            // ISSUE: method reference
-            // ISSUE: field reference
-            // ISSUE: method reference
-            // ISSUE: method reference
-            // ISSUE: method reference
-            List<Product> list = ((IQueryable<Product>)this._context.Products).Where<Product>(Expression.Lambda<Func<Product, bool>>((Expression)Expression.AndAlso(c.Id != cDisplayClass60.productId, (Expression)Expression.Equal((Expression)Expression.Call((Expression)Expression.Call(c.Barcode, (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(string.Trim)), Array.Empty<Expression>()), (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(string.ToLower)), Array.Empty<Expression>()), (Expression)Expression.Call((Expression)Expression.Call((Expression)Expression.Property((Expression)Expression.Field((Expression)Expression.Constant((object)cDisplayClass60, typeof(ProductsHttpTrigger.\u003C\u003Ec__DisplayClass6_0)), FieldInfo.GetFieldFromHandle(__fieldref(ProductsHttpTrigger.\u003C\u003Ec__DisplayClass6_0.product))), (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(ProductForCheckDto.get_Barcode))), (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(string.Trim)), Array.Empty<Expression>()), (MethodInfo)MethodBase.GetMethodFromHandle(__methodref(string.ToLower)), Array.Empty<Expression>()))), parameterExpression)).ToList<Product>();
-            if (flag && list.Count > 0)
-            {
-                flag = false;
-                str = "Barcode in use. Please enter a unique Barcode.";
-            }
-            check.Valid = flag;
-            check.Message = str;
+            prodCheckDto.Valid = false;
+            prodCheckDto.Message = error;
             this._cashGenRepository.AddEventLog(new EventLog()
             {
                 EventDate = DateTime.Now,
                 EventType = "API Request",
                 Area = nameof(CheckProduct),
-                Message = "Request: " + endAsync + " - Result: " + JsonConvert.SerializeObject((object)check)
-            });*/
+                Message = "Request: " + endAsync + " - Result: " + JsonConvert.SerializeObject((object)prodCheckDto)
+            });
             this._cashGenRepository.Save();
-            // return (IActionResult)new OkObjectResult((object)check);
-            return (IActionResult)new OkObjectResult((object)new List<string>());
+            return (IActionResult)new OkObjectResult((object)prodCheckDto);
+           
         }
 
         [FunctionName("LookupResults")]

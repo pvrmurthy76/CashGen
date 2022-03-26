@@ -34,7 +34,7 @@ namespace CashGen
         {
             if (!new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid)
                 return (IActionResult)new BadRequestResult();
-            LoggerExtensions.LogInformation(log, "C# HTTP trigger function processed a request.", Array.Empty<object>());
+            log.LogInformation("C# HTTP trigger function processed a request.", Array.Empty<object>());
             Product product = this._cashGenRepository.GetProduct(id);
             IEnumerable<Image> images = this._cashGenRepository.GetImages(id);
             product.Images = (ICollection<Image>)images;

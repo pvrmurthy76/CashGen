@@ -8,6 +8,6 @@ namespace CashGen
     public static class EmailLicenceFile
     {
         [FunctionName("EmailLicenceFile")]
-        public static void Run([BlobTrigger("orders/{name}", Connection = "AzureWebJobsStorage")] Stream myBlob, string name, ILogger log) => LoggerExtensions.LogInformation(log, string.Format("C# Blob trigger function Processed blob\n Name:{0} \n Size: {1} Bytes", (object)name, (object)myBlob.Length), Array.Empty<object>());
+        public static void Run([BlobTrigger("orders/{name}", Connection = "AzureWebJobsStorage")] Stream myBlob, string name, ILogger log) => log.LogInformation(string.Format("C# Blob trigger function Processed blob\n Name:{0} \n Size: {1} Bytes", (object)name, (object)myBlob.Length), Array.Empty<object>());
     }
 }

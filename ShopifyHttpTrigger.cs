@@ -1,3 +1,4 @@
+using AutoMapper;
 using CashGen.DBContexts;
 using CashGen.Entities;
 using CashGen.Models;
@@ -51,7 +52,7 @@ namespace CashGen
             mail2.SendMail(msg);
             Chat chat = new Chat();
             Store store1 = new Store();
-            Store store2 = ((IQueryable<Store>)this._context.Stores).Where<Store>((Expression<Func<Store, bool>>)(c => c.Email == contact.recipient)).FirstOrDefault<Store>();
+            Store store2 = ((IQueryable<Store>)this._context.Stores).Where<Store>(c => c.Email == contact.recipient).FirstOrDefault<Store>();
             string str = "";
             Guid guid = Guid.Empty;
             if (store2 != null)

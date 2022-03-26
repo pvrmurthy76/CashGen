@@ -40,16 +40,16 @@ namespace CashGen
         {
             int num1 = 1;
             int num2 = 30;
-            if (!string.IsNullOrEmpty(StringValues.op_Implicit(req.Query["page"])))
-                num1 = Convert.ToInt32(StringValues.op_Implicit(req.Query["page"]));
-            if (!string.IsNullOrEmpty(StringValues.op_Implicit(req.Query["size"])))
-                num2 = Convert.ToInt32(StringValues.op_Implicit(req.Query["size"]));
+            if (!string.IsNullOrEmpty(req.Query["page"]))
+                num1 = Convert.ToInt32(req.Query["page"]);
+            if (!string.IsNullOrEmpty(req.Query["size"]))
+                num2 = Convert.ToInt32(req.Query["size"]);
             Guid id = Guid.NewGuid();
             bool admin = false;
-            if (!string.IsNullOrEmpty(StringValues.op_Implicit(req.Query["admin-view"])))
+            if (!string.IsNullOrEmpty(req.Query["admin-view"]))
                 admin = true;
             else
-                id = new Guid(StringValues.op_Implicit(req.Query["store"]));
+                id = new Guid(req.Query["store"]);
             return new UsersHttpTrigger(this._cashGenRepository, this._context, this._mapper).authenticateUser(((IEnumerable<string>)(object)req.Headers["auth_token"]).FirstOrDefault<string>()).valid ? (IActionResult)new OkObjectResult((object)this._mapper.Map<IEnumerable<ChatListDto>>((object)this._cashGenRepository.GetChats(id, admin))) : (IActionResult)new BadRequestResult();
         }
 
@@ -62,7 +62,7 @@ namespace CashGen
             ChatForCreationDto chat = JsonConvert.DeserializeObject<ChatForCreationDto>(await ((TextReader)new StreamReader(req.Body)).ReadToEndAsync());
             Chat chat1 = this._mapper.Map<Chat>((object)chat);
             chat1.MessageDate = DateTime.Now;
-            Store store = ((IQueryable<Store>)this._context.Stores).Where<Store>((Expression<Func<Store, bool>>)(c => c.Id == chat.StoreId)).FirstOrDefault<Store>();
+            Store store = ((IQueryable<Store>)this._context.Stores).Where<Store>((c => c.Id == chat.StoreId)).FirstOrDefault<Store>();
             if (store != null)
                 chat1.StoreName = store.Title;
             this._cashGenRepository.AddChat(chat1);

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
 namespace CashGen
 {
     public class RefreshProductssHttpTrigger
@@ -34,7 +35,7 @@ namespace CashGen
           [Queue("serpapi")] IAsyncCollector<Product> serpapiQueue,
           ILogger log)
         {
-            LoggerExtensions.LogInformation(log, "C# HTTP trigger function processed a request.", Array.Empty<object>());
+            log.LogInformation( "C# HTTP trigger function processed a request.", Array.Empty<object>());
             foreach (Product product in (IEnumerable<Product>)this._context.Products)
                 await serpapiQueue.AddAsync(product, new CancellationToken());
             return (IActionResult)new OkObjectResult((object)true);

@@ -32,7 +32,7 @@ namespace CashGen
           [Queue("serpapi")] IAsyncCollector<Product> serpapiQueue,
           ILogger log)
         {
-            LoggerExtensions.LogInformation(log, "C# HTTP trigger function processed a request.", Array.Empty<object>());
+            log.LogInformation( "C# HTTP trigger function processed a request.", Array.Empty<object>());
             ProductForCreationDto productForCreationDto = JsonConvert.DeserializeObject<ProductForCreationDto>(await ((TextReader)new StreamReader(req.Body)).ReadToEndAsync());
             productForCreationDto.Status = "DRAFT";
             Product productEntity = this._mapper.Map<Product>((object)productForCreationDto);

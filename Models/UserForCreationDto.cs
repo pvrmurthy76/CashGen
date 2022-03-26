@@ -22,4 +22,4 @@ namespace CashGen.Models
         public bool Accounting { get; set; }
     }
 }
-}
+
